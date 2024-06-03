@@ -1,5 +1,6 @@
 import { Controller, Get, Request, Post, UseGuards, HttpStatus } from '@nestjs/common';
 import { LocalAuthGuard, AuthService, JwtAuthGuard, BasicAuthGuard } from './auth';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
@@ -14,6 +15,8 @@ export class AppController {
     };
   }
 
+  
+  @ApiTags('Auth')
   @UseGuards(LocalAuthGuard)
   @Post('api/auth/login')
   async login(@Request() req) {
@@ -28,6 +31,7 @@ export class AppController {
     };
   }
 
+  @ApiTags('Profile')
   @UseGuards(BasicAuthGuard)
   @Get('api/profile')
   async getProfile(@Request() req) {

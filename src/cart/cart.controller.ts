@@ -6,7 +6,9 @@ import { AppRequest, getUserIdFromRequest } from '../shared';
 
 import { calculateCartTotal } from './models-rules';
 import { CartService } from './services';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Cart')
 @Controller('api/profile/cart')
 export class CartController {
   constructor(
@@ -58,11 +60,11 @@ export class CartController {
   // @UseGuards(JwtAuthGuard)
   // @UseGuards(BasicAuthGuard)
   @Post('checkout')
-  checkout(@Req() req: AppRequest, @Body() body) {
+  async checkout(@Req() req: AppRequest, @Body() body) {
     const userId = getUserIdFromRequest(req);
-    const cart = this.cartService.findByUserId(userId);
+    const cart = await this.cartService.findByUserId(userId);
 
-    if (!(cart && cart.items.length)) {
+    if (!(cart && cart.length)) {
       const statusCode = HttpStatus.BAD_REQUEST;
       req.statusCode = statusCode
 
@@ -72,14 +74,12 @@ export class CartController {
       }
     }
 
-    const { id: cartId, items } = cart;
-    const total = calculateCartTotal(cart);
+    const { id: cartId, items  } = cart[0];
     const order = this.orderService.create({
       ...body, // TODO: validate and pick only necessary data
       userId,
       cartId,
       items,
-      total,
     });
     this.cartService.removeByUserId(userId);
 
